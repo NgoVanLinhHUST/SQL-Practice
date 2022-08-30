@@ -1,0 +1,89 @@
+﻿use QLDA;
+SELECT * FROM NHANVIEN;
+---
+SELECT DISTINCT HONV FROM NHANVIEN;
+---
+SELECT * FROM NHANVIEN 
+WHERE PHAI LIKE N'NỮ';
+---
+SELECT PHG, COUNT(MANV) FROM NHANVIEN
+GROUP BY PHG
+HAVING COUNT(MANV) >2;
+-----
+SELECT * FROM NHANVIEN
+WHERE PHG = 4;
+---
+SELECT * FROM NHANVIEN
+WHERE LUONG > 30000
+---
+SELECT * FROM NHANVIEN
+WHERE (PHG = 4 AND  LUONG > 25000) OR (PHG =5 AND LUONG > 30000)
+---
+SELECT CONCAT(HONV, ' ', TENLOT, ' ', TENNV) FROM NHANVIEN
+WHERE DCHI LIKE N'%HCM%' OR DCHI LIKE N'%HỒ CHÍ MINH'
+---
+SELECT CONCAT(HONV, ' ', TENLOT, ' ', TENNV) FROM NHANVIEN
+WHERE HONV LIKE N'N%'
+---
+SELECT NGSINH, DCHI FROM NHANVIEN
+WHERE HONV = N'ĐINH' AND TENLOT= N'BÁ' AND TENNV = N'TIÊN'
+---
+SELECT * FROM NHANVIEN
+WHERE LUONG = 
+(SELECT MAX(LUONG) FROM NHANVIEN)
+----- or----
+DECLARE @max float
+select @max = MAX(LUONG) FROM NHANVIEN
+
+select * from NHANVIEN
+WHERE LUONG = @max;
+----
+SELECT CONCAT(HONV, ' ', TENLOT, ' ', TENNV) FROM NHANVIEN
+WHERE LUONG > 
+(SELECT AVG(LUONG) FROM NHANVIEN WHERE PHG = 5)
+---
+-- voi phong ban co muc luong trung binh tren 30000 liet ke ten phong ban
+--va so luong nhan vien cua phong ban do
+DECLARE @ThongKe table (MaPH int, LTB float, SoLuong INT)
+
+INSERT INTO @ThongKe SELECT PHG, AVG(LUONG), COUNT(MANV) FROM NHANVIEN
+	GROUP BY PHG
+
+SELECT a.*, b.TENPHG, b.MAPHG FROM @ThongKe a 
+INNER JOIN PHONGBAN b 
+ON a.MaPH = b.MAPHG
+---
+SELECT * FROM PHONGBAN
+
+SELECT * FROM DEAN
+--- VOI MOI PHONG BAN, CHO BIET TEN VA SO LUONG DE AN MA PHONG BAN CHU TRI
+SELECT  p.TENPHG , COUNT(d.TENDEAN)
+FROM PHONGBAN p
+JOIN DEAN d 
+ON p.MAPHG = d.PHONG
+GROUP BY TENPHG
+ORDER BY COUNT(d.TENDEAN) DESC
+
+--OR--
+DECLARE @ThongKe table (MAPH int , SoDeAn int)
+INSERT INTO @ThongKe SELECT PHONG, COUNT(MADA)
+FROM DEAN
+GROUP BY PHONG
+
+SELECT * FROM @ThongKe
+
+SELECT p.TENPHG, t.MAPH , t.SoDeAn 
+FROM @ThongKe t 
+JOIN PHONGBAN p 
+ON p.MAPHG = t.MAPH
+
+------
+declare @dai float, @rong float , @chuvi float, @dientich float
+set @dai =5
+set @rong = 3
+set @dientich = @dai*@rong
+set @chuvi = 2*(@dai+@rong)
+
+select 'dien tich'+ CAST (@dientich as varchar)
+select 'chu vi' + CAST (@chuvi as varchar)
+
